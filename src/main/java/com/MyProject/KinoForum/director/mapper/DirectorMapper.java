@@ -9,7 +9,7 @@ import org.mapstruct.factory.Mappers;
 @Mapper(componentModel = "spring")
 public interface DirectorMapper {
     DirectorMapper INSTANCE = Mappers.getMapper(DirectorMapper.class);
-    DirectorDto toDto(Director user);
-    Director toEntityFromNewDirector(NewDirector user);
-    Director toEntityFromDirectorDto(DirectorDto user);
+    DirectorDto toDto(Director director);
+    Director toEntityFromNewDirector(NewDirector newDirector);
+    Director toEntityFromDirectorDto(DirectorDto directorDto);
 }
