@@ -16,11 +16,11 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/admin/users")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 @Slf4j
 @Validated
-public class AdminController {
+public class UserController {
     private final UserService service;
 
     @PostMapping
