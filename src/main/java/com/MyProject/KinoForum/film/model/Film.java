@@ -1,11 +1,12 @@
 package com.MyProject.KinoForum.film.model;
 
+import com.MyProject.KinoForum.category.model.Category;
 import com.MyProject.KinoForum.director.model.Director;
 import com.MyProject.KinoForum.enums.FilmRating;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalTime;
 
 @Entity
@@ -24,7 +25,6 @@ public class Film {
     private Integer releaseYear;
     @Column(nullable = false)
     private LocalTime duration;
-    //TODO add director entity
     @ManyToOne
     @JoinColumn(name = "director_id", nullable = false)
     private Director director;
@@ -32,9 +32,8 @@ public class Film {
     private FilmRating rating;
     @Column(nullable = false)
     private String country;
-    //TODO add category entity
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
-    private String category;
+    private Category category;
 
 }

@@ -2,19 +2,63 @@ package com.MyProject.KinoForum.director.service;
 
 import com.MyProject.KinoForum.director.dto.NewDirector;
 import com.MyProject.KinoForum.director.dto.DirectorDto;
+import com.MyProject.KinoForum.director.mapper.DirectorMapper;
+import com.MyProject.KinoForum.director.model.Director;
+import com.MyProject.KinoForum.director.repository.DirectorRepository;
+import com.MyProject.KinoForum.exceptions.NotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.support.PagedListHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.util.ReflectionUtils;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-public interface DirectorService {
+@Service
+@RequiredArgsConstructor
+public class DirectorService {
+    private final DirectorRepository repository;
+    private final DirectorMapper mapper;
 
-    DirectorDto addDirector(NewDirector newDirector);
+    public DirectorDto addDirector(NewDirector newDirector) {
+        return mapper.toDto(repository.save(mapper.toEntityFromNewDirector(newDirector)));
+    }
 
-    DirectorDto getDirector(Long directorId);
+    public DirectorDto getDirector(Long directorId) {
+        return mapper.toDto(getDirectorEntity(directorId));
+    }
 
-    List<DirectorDto> getAllDirectors(int size, int from);
+    public Director getDirectorEntity(Long directorId) {
+        Optional<Director> user = repository.findById(directorId);
+        if(user.isEmpty()) throw new NotFoundException("Director not found");
+        return user.get();
+    }
 
-    void deleteDirector(Long directorId);
+    public List<DirectorDto> getAllDirectors(int size, int from) {
+        PagedListHolder<DirectorDto> page = new PagedListHolder<>(repository.findAll()
+                .stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList()));
+        page.setPageSize(size);
+        page.setPage(from);
+        return page.getPageList();
+    }
 
-    DirectorDto patchDirector(Map<String, Object> fields, Long directorId);
+    public void deleteDirector(Long directorId) {
+        repository.delete(mapper.toEntityFromDirectorDto(getDirector(directorId)));
+    }
+
+    public DirectorDto patchDirector(Map<String, Object> fields, Long directorId) {
+        Optional<Director> user = repository.findById(directorId);
+        if(!user.isPresent()) throw new NotFoundException("Director not found");
+        fields.forEach((k, v) -> {
+            Field field = ReflectionUtils.findField(Director.class, k);
+            field.setAccessible(true);
+            ReflectionUtils.setField(field, user.get(), v);
+        });
+        return mapper.toDto(repository.save(user.get()));
+    }
 }

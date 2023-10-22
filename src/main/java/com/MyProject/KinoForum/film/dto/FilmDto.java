@@ -13,8 +13,8 @@ public class FilmDto {
     private String description;
     private Integer releaseYear;
     private LocalTime duration;
-    private String director;
+    private Long directorId;
     private FilmRating rating;
     private String country;
-    private String category;
+    private Long categoryId;
 }
