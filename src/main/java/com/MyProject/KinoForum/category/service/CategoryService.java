@@ -2,12 +2,14 @@ package com.MyProject.KinoForum.category.service;
 
 import com.MyProject.KinoForum.category.dto.CategoryDto;
 import com.MyProject.KinoForum.category.dto.NewCategory;
+import com.MyProject.KinoForum.category.dto.UpdateCategoryDto;
 import com.MyProject.KinoForum.category.mapper.CategoryMapper;
 import com.MyProject.KinoForum.category.model.Category;
 import com.MyProject.KinoForum.category.repository.CategoryRepository;
 import com.MyProject.KinoForum.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.support.PagedListHolder;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
@@ -30,6 +32,9 @@ public class CategoryService {
     public CategoryDto getCategory(Long categoryId) {
         return mapper.toDto(getCategoryEntity(categoryId));
     }
+    public Category getCategoryEntityByName(String name) {
+        return repository.findByName(name).orElseThrow(()-> new NotFoundException("Category not found"));
+    }
     public Category getCategoryEntity(Long categoryId) {
         Optional<Category> category = repository.findById(categoryId);
         if(!category.isPresent()) throw new NotFoundException("Category not found");
@@ -37,27 +42,22 @@ public class CategoryService {
     }
 
     public List<CategoryDto> getAllCategories(int size, int from) {
-        PagedListHolder<CategoryDto> page = new PagedListHolder<>(repository.findAll()
-                .stream()
-                .map(mapper::toDto)
-                .collect(Collectors.toList()));
-        page.setPageSize(size);
-        page.setPage(from);
-        return page.getPageList();
+        return mapper
+                .toDtoList(
+                        repository
+                                .findAll(PageRequest.of(from,size))
+                                .toList());
     }
 
     public void deleteCategory(Long categoryId) {
-        repository.delete(mapper.toEntityFromCategoryDto(getCategory(categoryId)));
+        repository.deleteById(categoryId);
     }
-
-    public CategoryDto patchCategory(Map<String, Object> fields, Long categoryId) {
-        Optional<Category> user = repository.findById(categoryId);
-        if(!user.isPresent()) throw new NotFoundException("Category not found");
-        fields.forEach((k, v) -> {
-            Field field = ReflectionUtils.findField(Category.class, k);
-            field.setAccessible(true);
-            ReflectionUtils.setField(field, user.get(), v);
-        });
-        return mapper.toDto(repository.save(user.get()));
+    public CategoryDto patchCategory(UpdateCategoryDto upd, Long categoryId) {
+        return mapper.toDto(
+                repository.save(
+                        mapper.updateCategory(
+                                repository
+                                        .findById(categoryId)
+                                        .orElseThrow(()->new NotFoundException("Category for update not found")), upd)));
     }
 }

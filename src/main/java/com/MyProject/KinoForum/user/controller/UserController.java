@@ -2,6 +2,7 @@ package com.MyProject.KinoForum.user.controller;
 
 
 import com.MyProject.KinoForum.user.dto.NewUser;
+import com.MyProject.KinoForum.user.dto.UpdateUserDto;
 import com.MyProject.KinoForum.user.dto.UserDto;
 import com.MyProject.KinoForum.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -40,9 +41,9 @@ public class UserController {
     }
     @GetMapping
     public List<UserDto> getAllUsers(@RequestParam(value = "size",required = false, defaultValue = "5") @Min(5) int size,
-                                     @RequestParam(value = "from",required = false, defaultValue = "1") @Min(1) int from){
-        log.info("getAllUsers started with params: size {}, from {}",size, from-1);
-        List<UserDto> result = service.getAllUsers(size,from-1);
+                                     @RequestParam(value = "from",required = false, defaultValue = "0") @Min(0) int from){
+        log.info("getAllUsers started with params: size {}, from {}",size, from);
+        List<UserDto> result = service.getAllUsers(size,from);
         log.info("getAllUsers finished: {}", result);
         return result;
     }
@@ -54,9 +55,9 @@ public class UserController {
         log.info("deleteUser finished");
     }
     @PatchMapping("/{id}")
-    public UserDto patchUser(@RequestBody Map<String, Object> fields, @PathVariable("id") Long userId){
-        log.info("patchUser started with fields: {} and id: {}",fields, userId);
-        UserDto result = service.patchUser(fields, userId);
+    public UserDto patchUser(@RequestBody UpdateUserDto upd, @PathVariable("id") Long userId){
+        log.info("patchUser started with body: {} and id: {}",upd, userId);
+        UserDto result = service.patchUser(upd, userId);
         log.info("patchUser finished: {}", result);
         return result;
     }

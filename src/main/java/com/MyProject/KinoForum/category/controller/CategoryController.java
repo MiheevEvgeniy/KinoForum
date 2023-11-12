@@ -3,6 +3,7 @@ package com.MyProject.KinoForum.category.controller;
 
 import com.MyProject.KinoForum.category.dto.CategoryDto;
 import com.MyProject.KinoForum.category.dto.NewCategory;
+import com.MyProject.KinoForum.category.dto.UpdateCategoryDto;
 import com.MyProject.KinoForum.category.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,9 +41,9 @@ public class CategoryController {
     }
     @GetMapping
     public List<CategoryDto> getAllCategories(@RequestParam(value = "size",required = false, defaultValue = "5") @Min(5) int size,
-                                             @RequestParam(value = "from",required = false, defaultValue = "1") @Min(1) int from){
-        log.info("getAllCategories started with params: size {}, from {}",size, from-1);
-        List<CategoryDto> result = service.getAllCategories(size,from-1);
+                                             @RequestParam(value = "from",required = false, defaultValue = "0") @Min(0) int from){
+        log.info("getAllCategories started with params: size {}, from {}",size, from);
+        List<CategoryDto> result = service.getAllCategories(size,from);
         log.info("getAllCategories finished: {}", result);
         return result;
     }
@@ -54,9 +55,9 @@ public class CategoryController {
         log.info("deleteCategory finished");
     }
     @PatchMapping("/{id}")
-    public CategoryDto patchCategory(@RequestBody Map<String, Object> fields, @PathVariable("id") Long categoryId){
-        log.info("patchCategory started with fields: {} and id: {}",fields, categoryId);
-        CategoryDto result = service.patchCategory(fields, categoryId);
+    public CategoryDto patchCategory(@RequestBody UpdateCategoryDto upd, @PathVariable("id") Long categoryId){
+        log.info("patchCategory started with body: {} and id: {}",upd, categoryId);
+        CategoryDto result = service.patchCategory(upd, categoryId);
         log.info("patchCategory finished: {}", result);
         return result;
     }

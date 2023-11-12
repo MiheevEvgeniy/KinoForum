@@ -9,6 +9,7 @@ import java.time.LocalTime;
 @Builder
 @Data
 public class FilmDto {
+    private Long id;
     private String title;
     private String description;
     private Integer releaseYear;

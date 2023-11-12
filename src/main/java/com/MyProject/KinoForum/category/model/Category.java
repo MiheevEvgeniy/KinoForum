@@ -1,8 +1,7 @@
 package com.MyProject.KinoForum.category.model;
 
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import jakarta.persistence.*;
 import java.util.Objects;
@@ -11,6 +10,9 @@ import java.util.Objects;
 @Table(name = "categories", schema = "public")
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
