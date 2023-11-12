@@ -1,9 +1,11 @@
 package com.MyProject.KinoForum.film.model;
 
+import com.MyProject.KinoForum.category.model.Category;
+import com.MyProject.KinoForum.director.model.Director;
 import com.MyProject.KinoForum.enums.FilmRating;
 import org.springframework.data.jpa.domain.Specification;
 
-public class FIlmSpecifications {
+public class FilmSpecifications {
     public static Specification<Film> withTitle(String title) {
         if (title != null) {
             return (root, query, cb) -> cb.like(cb.lower(root.get("title")), "%"+title.toLowerCase()+"%");
@@ -16,9 +18,9 @@ public class FIlmSpecifications {
         }
         return null;
     }
-    public static Specification<Film> withDirector(String director) {
+    public static Specification<Film> withDirector(Director director) {
         if (director != null) {
-            return (root, query, cb) -> cb.like(cb.lower(root.get("director")), "%"+director.toLowerCase()+"%");
+            return (root, query, cb) -> cb.equal(root.get("director"), director);
         }
         return null;
     }
@@ -34,9 +36,9 @@ public class FIlmSpecifications {
         }
         return null;
     }
-    public static Specification<Film> withCategory(String category) {
+    public static Specification<Film> withCategory(Category category) {
         if (category != null) {
-            return (root, query, cb) -> cb.like(cb.lower(root.get("category")), "%"+category.toLowerCase()+"%");
+            return (root, query, cb) -> cb.equal(root.get("category"), category);
         }
         return null;
     }

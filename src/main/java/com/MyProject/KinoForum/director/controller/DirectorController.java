@@ -3,6 +3,7 @@ package com.MyProject.KinoForum.director.controller;
 
 import com.MyProject.KinoForum.director.dto.NewDirector;
 import com.MyProject.KinoForum.director.dto.DirectorDto;
+import com.MyProject.KinoForum.director.dto.UpdateDirectorDto;
 import com.MyProject.KinoForum.director.service.DirectorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,9 +41,9 @@ public class DirectorController {
     }
     @GetMapping
     public List<DirectorDto> getAllDirectors(@RequestParam(value = "size",required = false, defaultValue = "5") @Min(5) int size,
-                                         @RequestParam(value = "from",required = false, defaultValue = "1") @Min(1) int from){
-        log.info("getAllDirectors started with params: size {}, from {}",size, from-1);
-        List<DirectorDto> result = service.getAllDirectors(size,from-1);
+                                         @RequestParam(value = "from",required = false, defaultValue = "0") @Min(0) int from){
+        log.info("getAllDirectors started with params: size {}, from {}",size, from);
+        List<DirectorDto> result = service.getAllDirectors(size,from);
         log.info("getAllDirectors finished: {}", result);
         return result;
     }
@@ -54,9 +55,9 @@ public class DirectorController {
         log.info("deleteDirector finished");
     }
     @PatchMapping("/{id}")
-    public DirectorDto patchDirector(@RequestBody Map<String, Object> fields, @PathVariable("id") Long directorId){
-        log.info("patchDirector started with fields: {} and id: {}",fields, directorId);
-        DirectorDto result = service.patchDirector(fields, directorId);
+    public DirectorDto patchDirector(@RequestBody UpdateDirectorDto directorDto, @PathVariable("id") Long directorId){
+        log.info("patchDirector started with body: {} and id: {}",directorDto, directorId);
+        DirectorDto result = service.patchDirector(directorDto, directorId);
         log.info("patchDirector finished: {}", result);
         return result;
     }

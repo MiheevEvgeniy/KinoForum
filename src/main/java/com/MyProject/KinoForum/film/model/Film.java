@@ -3,8 +3,7 @@ package com.MyProject.KinoForum.film.model;
 import com.MyProject.KinoForum.category.model.Category;
 import com.MyProject.KinoForum.director.model.Director;
 import com.MyProject.KinoForum.enums.FilmRating;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import jakarta.persistence.*;
 import java.time.LocalTime;
@@ -13,6 +12,9 @@ import java.time.LocalTime;
 @Table(name = "Films", schema = "public")
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Film {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

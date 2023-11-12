@@ -1,13 +1,17 @@
 package com.MyProject.KinoForum.user.service;
 
 import com.MyProject.KinoForum.exceptions.NotFoundException;
+import com.MyProject.KinoForum.film.dto.FilmDto;
+import com.MyProject.KinoForum.film.dto.UpdateFilmDto;
 import com.MyProject.KinoForum.user.dto.NewUser;
+import com.MyProject.KinoForum.user.dto.UpdateUserDto;
 import com.MyProject.KinoForum.user.dto.UserDto;
 import com.MyProject.KinoForum.user.mapper.UserMapper;
 import com.MyProject.KinoForum.user.model.User;
 import com.MyProject.KinoForum.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.support.PagedListHolder;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
@@ -37,27 +41,22 @@ public class UserService {
     }
 
     public List<UserDto> getAllUsers(int size, int from) {
-        PagedListHolder<UserDto> page = new PagedListHolder<>(repository.findAll()
-                .stream()
-                .map(mapper::toDto)
-                .collect(Collectors.toList()));
-        page.setPageSize(size);
-        page.setPage(from);
-        return page.getPageList();
+        return mapper
+                .toDtoList(
+                        repository
+                                .findAll(PageRequest.of(from,size))
+                                .toList());
+
     }
 
     public void deleteUser(Long userId) {
-        repository.delete(mapper.toEntityFromUserDto(getUser(userId)));
+        repository.deleteById(userId);
     }
-
-    public UserDto patchUser(Map<String, Object> fields, Long userId) {
-        Optional<User> user = repository.findById(userId);
-        if(!user.isPresent()) throw new NotFoundException("User not found");
-        fields.forEach((k, v) -> {
-            Field field = ReflectionUtils.findField(User.class, k);
-            field.setAccessible(true);
-            ReflectionUtils.setField(field, user.get(), v);
-        });
-        return mapper.toDto(repository.save(user.get()));
+    public UserDto patchUser(UpdateUserDto upd, Long userId) {
+        return mapper.toDto(
+                repository.save(mapper.updateUser(
+                        repository
+                                .findById(userId)
+                                .orElseThrow(()->new NotFoundException("User for update not found")), upd)));
     }
 }

@@ -3,6 +3,8 @@ package com.MyProject.KinoForum.exceptions;
 import lombok.Getter;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -18,14 +20,22 @@ public class ErrorHandler {
     public ErrorResponse handleNotFoundException(final Exception e) {
         return new ErrorResponse(HttpStatus.NOT_FOUND,
                 LocalDateTime.now(),
-                e.getMessage(),
-                e.getStackTrace());
+                e.getMessage());
+    }
+
+    @ExceptionHandler({MethodArgumentNotValidException.class,
+            HttpMessageNotReadableException.class,
+            ConstraintViolationException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleBadRequestException(final Exception e) {
+        return new ErrorResponse(HttpStatus.BAD_REQUEST,
+                LocalDateTime.now(),
+                e.getMessage());
     }
 
     @Getter
     private static class ErrorResponse {
         String message;
-        StackTraceElement[] stackTraceElements;
         HttpStatus status;
         LocalDateTime timestamp;
 
@@ -35,16 +45,13 @@ public class ErrorHandler {
                     "status=" + status +
                     ", timestamp=" + timestamp +
                     ", message='" + message + '\'' +
-                    ", stackTrace='" + stackTraceElements + '\'' +
                     '}';
         }
 
         ErrorResponse(HttpStatus status,
                  LocalDateTime timestamp,
-                 String message,
-                 StackTraceElement[] stackTraceElements) {
+                 String message) {
             this.message = message;
-            this.stackTraceElements = stackTraceElements;
             this.status = status;
             this.timestamp = timestamp;
         }

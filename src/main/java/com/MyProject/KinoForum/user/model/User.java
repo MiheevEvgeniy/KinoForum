@@ -1,8 +1,7 @@
 package com.MyProject.KinoForum.user.model;
 
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import jakarta.persistence.*;
 import java.util.Objects;
@@ -11,6 +10,9 @@ import java.util.Objects;
 @Table(name = "users", schema = "public")
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
