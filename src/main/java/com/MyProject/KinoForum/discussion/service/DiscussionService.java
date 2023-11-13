@@ -91,19 +91,6 @@ public class DiscussionService {
                                         PageRequest.of(from,size))
                                 .toList());
     }
-
-    @Deprecated
-    public DiscussionDto patchDiscussion(Map<String, Object> fields, long id) {
-        Optional<Discussion> discussion = repository.findById(id);
-        if(discussion.isEmpty()) throw new NotFoundException("Discussion not found");
-        fields.forEach((k, v) -> {
-            Field field = ReflectionUtils.findField(Discussion.class, k);
-            assert field != null;
-            field.setAccessible(true);
-            ReflectionUtils.setField(field, discussion.get(), v);
-        });
-        return mapper.toDto(repository.save(discussion.get()));
-    }
     public DiscussionDto patchDiscussion(UpdateDiscussionDto upd, long id) {
         List<Category> categories = null;
         
