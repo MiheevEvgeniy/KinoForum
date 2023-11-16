@@ -27,7 +27,7 @@ public class CommentController {
     public CommentDto addComment(@PathVariable("discussionId") long discId, @RequestBody @Valid NewComment newComment){
         log.info("addComment started with body: {}", newComment);
         CommentDto result = service.addComment(discId, newComment);
-        log.info("openComment finished: {}", result);
+        log.info("addComment finished: {}", result);
         return result;
     }
     @GetMapping("/{comId}")
@@ -37,13 +37,15 @@ public class CommentController {
         log.info("getComment finished: {}", result);
         return result;
     }
-    @GetMapping("/{comId}/like")
+    @PostMapping("/{comId}/like")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void likeComment(@PathVariable("discussionId") long discId, @PathVariable("comId") long comId){
         log.info("likeComment started with comId: {} and discId: {}", comId, discId);
         service.likeOrDislikeComment(discId, comId, true);
         log.info("likeComment finished");
     }
-    @GetMapping("/{comId}/dislike")
+    @PostMapping("/{comId}/dislike")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void dislikeComment(@PathVariable("discussionId") long discId, @PathVariable("comId") long comId){
         log.info("dislikeComment started with comId: {} and discId: {}", comId, discId);
         service.likeOrDislikeComment(discId, comId, false);
@@ -62,7 +64,7 @@ public class CommentController {
     }
     @PatchMapping("/{comId}")
     public CommentDto patchComment(@PathVariable("discussionId") long discId,
-                                   @PathVariable("id") long comId,
+                                   @PathVariable("comId") long comId,
                                    @RequestBody UpdateCommentDto upd){
         log.info("patchComment started with body: {},  comId: {} and discId: {}",upd, comId, discId);
         CommentDto result = service.patchComment(discId, comId, upd);
@@ -72,7 +74,7 @@ public class CommentController {
     @DeleteMapping("/{comId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteComment(@PathVariable("discussionId") long discId,
-                              @PathVariable("id") long comId){
+                              @PathVariable("comId") long comId){
         log.info("deleteComment started with comId: {} and discId: {}", comId, discId);
         service.deleteComment(comId, discId);
         log.info("deleteComment finished");

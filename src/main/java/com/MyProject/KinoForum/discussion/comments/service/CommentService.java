@@ -46,13 +46,14 @@ public class CommentService {
     }
 
     public CommentDto getComment(long discId, long comId) {
-        return mapper.toDto(getCommentEntity(comId, discId));
+        return mapper.toDto(getCommentEntity(discId, comId));
     }
     public void likeOrDislikeComment(long discId, long comId, boolean isLiked) {
-        Comment comment = getCommentEntity(comId,discId);
+        Comment comment = getCommentEntity(discId,comId);
         if (isLiked){
             comment.setLikes(comment.getLikes()+1);
             repository.save(comment);
+            return;
         }
         comment.setDislikes(comment.getDislikes()+1);
         repository.save(comment);
