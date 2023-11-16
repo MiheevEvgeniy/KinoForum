@@ -56,11 +56,20 @@ public class DiscussionService {
 
         return mapper.toDto(repository.save(discussion));
     }
+    public Long incrementCommentsAmount(long discId) {
+        Discussion discussion = getDiscussionEntity(discId);
+        discussion.setCommentsAmount(discussion.getCommentsAmount() + 1);
+        return repository.save(discussion).getCommentsAmount();
+    }
 
     public DiscussionDto getDiscussion(long discId) {
+        return mapper.toDto(getDiscussionEntity(discId));
+    }
+
+    public Discussion getDiscussionEntity(long discId){
         Optional<Discussion> discussion = repository.findById(discId);
         if(discussion.isEmpty()) throw new NotFoundException("Discussion not found");
-        return mapper.toDto(discussion.get());
+        return discussion.get();
     }
 
     public List<DiscussionDto> search(int size,
