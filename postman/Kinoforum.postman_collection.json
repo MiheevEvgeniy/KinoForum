@@ -1,0 +1,6048 @@
+{
+	"info": {
+		"_postman_id": "1688a845-0599-4511-9349-cf8681ee45de",
+		"name": "Kinoforum",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23072068"
+	},
+	"item": [
+		{
+			"name": "user",
+			"item": [
+				{
+					"name": "add user",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    let user;\r",
+									"    try {\r",
+									"        user = rnd.getUser();\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"\r",
+									"    pm.request.body.update({\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify(user),\r",
+									"        options: { raw: { language: 'json' } }\r",
+									"    });\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 201 и данные в формате json\", () => {\r",
+									"    pm.response.to.have.status(201);\r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const source = JSON.parse(pm.request.body.raw);\r",
+									"const target = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Пользователь должен содержать поля: id, name, email, country\", () => {\r",
+									"    pm.expect(target).to.have.property('id');\r",
+									"    pm.expect(target).to.have.property('name');\r",
+									"    pm.expect(target).to.have.property('email');\r",
+									"    pm.expect(target).to.have.property('country');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", () => {\r",
+									"    pm.expect(target.id).to.not.be.null;\r",
+									"    pm.expect(source.name).equal(target.name, 'Имя пользователя должно соответствовать отправленному в запросе');\r",
+									"    pm.expect(source.email).equal(target.email, 'Почта пользователя должна соответствовать отправленной в запросе');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{request_body}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get user by id",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const user = await api.addUser(rnd.getUser());\r",
+									"        pm.collectionVariables.set(\"uid\", user.id)\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", () => {\r",
+									"    pm.response.to.be.ok;    \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const target = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Пользователи должны содержать поля: id, name, email, country\", () => {\r",
+									"    pm.expect(target).to.have.property('id');\r",
+									"    pm.expect(target).to.have.property('name');\r",
+									"    pm.expect(target).to.have.property('email');\r",
+									"    pm.expect(target).to.have.property('country');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", () => {\r",
+									"    pm.expect(target.id).equal(pm.collectionVariables.get(\"uid\"));\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/:userId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{uid}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "patch user",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const user1 = await api.addUser(rnd.getUser());\r",
+									"        const user2 = user1;\r",
+									"        user2.name = pm.variables.replaceIn('{{$randomFullName}}');\r",
+									"       \r",
+									"        pm.collectionVariables.set('response', user2);\r",
+									"        pm.collectionVariables.set(\"uid\", user1.id)\r",
+									"        pm.request.body.update({\r",
+									"            mode: 'raw',\r",
+									"            raw: JSON.stringify({\r",
+									"                name: user2.name\r",
+									"            }),\r",
+									"            options: { raw: { language: 'json' } }\r",
+									"        });\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
+									"    pm.response.to.be.ok;    \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const source = pm.collectionVariables.get('response');\r",
+									"const target = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Пользователи должны содержать поля: id, name, email, country\", () => {\r",
+									"    pm.expect(target).to.have.property('id');\r",
+									"    pm.expect(target).to.have.property('name');\r",
+									"    pm.expect(target).to.have.property('email');\r",
+									"    pm.expect(target).to.have.property('country');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", function () {\r",
+									"    pm.expect(source.id).equal(target.id, 'Id должны совпадать');\r",
+									"    pm.expect(source.name).equal(target.name, 'Имена должны совпадать');\r",
+									"    pm.expect(source.country).equal(target.country, 'Страны должны совпадать');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/:userId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{uid}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
+									"    pm.response.to.be.ok;    \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const target = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Пользователи должны содержать поля: id, name, email\", function () {\r",
+									"    pm.expect(target[0]).to.have.property('id');\r",
+									"    pm.expect(target[0]).to.have.property('name');\r",
+									"    pm.expect(target[0]).to.have.property('email');\r",
+									"    pm.expect(target[0]).to.have.property('country');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Должен быть найден как минимум один пользователь по заданному фильтру\", function () {\r",
+									"    pm.expect(target.length).to.be.greaterThan(0);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const user = await api.addUser(rnd.getUser());\r",
+									"        pm.collectionVariables.set(\"response\", user)\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users?size=5&from=0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users"
+							],
+							"query": [
+								{
+									"key": "size",
+									"value": "5"
+								},
+								{
+									"key": "from",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete user",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const user = await api.addUser(rnd.getUser());\r",
+									"        const foundedUser = await api.findUser(user.id);\r",
+									"        pm.collectionVariables.set(\"uid\", user.id);\r",
+									"        pm.collectionVariables.set(\"response\", foundedUser)\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 204\", () => {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									"\r",
+									"const source = pm.collectionVariables.get('response');\r",
+									"const userId = pm.collectionVariables.get('uid');\r",
+									"\r",
+									"pm.test(\"Пользователь должен быть найден до выполнения запроса\", () => {\r",
+									"    pm.expect(source.id).to.eql(userId);\r",
+									"});\r",
+									"\r",
+									"let body\r",
+									"const req = {\r",
+									"                url: \"http://localhost:8080/api/v1/users/\" + userId,\r",
+									"                method: \"GET\",\r",
+									"                body: body == null ? \"\" : JSON.stringify(body),\r",
+									"                header: { \"Content-Type\": \"application/json\" },\r",
+									"            };\r",
+									"pm.sendRequest(req, (error, response) => {\r",
+									"    pm.test(\"Пользователь должен быть удалён после выполнения запроса\", () => {\r",
+									"        pm.expect(response.code).to.eql(404);\r",
+									"    });\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/:userId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{uid}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "validation",
+			"item": [
+				{
+					"name": "user valid",
+					"item": [
+						{
+							"name": "name size > 300",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let user;\r",
+											"    try {\r",
+											"        user = rnd.getUser();\r",
+											"        user.name = \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(user),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "name size < 1",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let user;\r",
+											"    try {\r",
+											"        user = rnd.getUser();\r",
+											"        user.name = \"\"\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(user),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "name blank",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let user;\r",
+											"    try {\r",
+											"        user = rnd.getUser();\r",
+											"        user.name = \"                   \"\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(user),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "email regexp",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let user;\r",
+											"    try {\r",
+											"        user = rnd.getUser();\r",
+											"        user.email = \"my_email.com\"\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(user),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "email blank",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let user;\r",
+											"    try {\r",
+											"        user = rnd.getUser();\r",
+											"        user.email = \"          \"\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(user),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "country blank",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let user;\r",
+											"    try {\r",
+											"        user = rnd.getUser();\r",
+											"        user.country = \"                \"\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(user),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "film valid",
+					"item": [
+						{
+							"name": "title blank",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let film;\r",
+											"    try {\r",
+											"        const director = await api.addDirector(rnd.getDirector());\r",
+											"        pm.collectionVariables.set(\"did\", director.id);\r",
+											"\r",
+											"        const category = await api.addCategory(rnd.getCategory());\r",
+											"        pm.collectionVariables.set(\"cid\", category.id);\r",
+											"\r",
+											"        film = rnd.getFilm(director.id, category.id);\r",
+											"        film.title = '            ';\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(film),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/films",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"films"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "title size < 1",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let film;\r",
+											"    try {\r",
+											"        const director = await api.addDirector(rnd.getDirector());\r",
+											"        pm.collectionVariables.set(\"did\", director.id);\r",
+											"\r",
+											"        const category = await api.addCategory(rnd.getCategory());\r",
+											"        pm.collectionVariables.set(\"cid\", category.id);\r",
+											"\r",
+											"        film = rnd.getFilm(director.id, category.id);\r",
+											"        film.title = '';\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(film),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/films",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"films"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "title size > 1000",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let film;\r",
+											"    try {\r",
+											"        const director = await api.addDirector(rnd.getDirector());\r",
+											"        pm.collectionVariables.set(\"did\", director.id);\r",
+											"\r",
+											"        const category = await api.addCategory(rnd.getCategory());\r",
+											"        pm.collectionVariables.set(\"cid\", category.id);\r",
+											"\r",
+											"        film = rnd.getFilm(director.id, category.id);\r",
+											"        film.title = \"verylongname\".repeat(84);\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(film),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/films",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"films"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "description size > 3000",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let film;\r",
+											"    try {\r",
+											"        const director = await api.addDirector(rnd.getDirector());\r",
+											"        pm.collectionVariables.set(\"did\", director.id);\r",
+											"\r",
+											"        const category = await api.addCategory(rnd.getCategory());\r",
+											"        pm.collectionVariables.set(\"cid\", category.id);\r",
+											"\r",
+											"        film = rnd.getFilm(director.id, category.id);\r",
+											"        film.description = \"verylongdescription\".repeat(158);\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(film),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/films",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"films"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "release year < 1895",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let film;\r",
+											"    try {\r",
+											"        const director = await api.addDirector(rnd.getDirector());\r",
+											"        pm.collectionVariables.set(\"did\", director.id);\r",
+											"\r",
+											"        const category = await api.addCategory(rnd.getCategory());\r",
+											"        pm.collectionVariables.set(\"cid\", category.id);\r",
+											"\r",
+											"        film = rnd.getFilm(director.id, category.id);\r",
+											"        film.releaseYear = 1500;\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(film),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/films",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"films"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "release year is negative",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let film;\r",
+											"    try {\r",
+											"        const director = await api.addDirector(rnd.getDirector());\r",
+											"        pm.collectionVariables.set(\"did\", director.id);\r",
+											"\r",
+											"        const category = await api.addCategory(rnd.getCategory());\r",
+											"        pm.collectionVariables.set(\"cid\", category.id);\r",
+											"\r",
+											"        film = rnd.getFilm(director.id, category.id);\r",
+											"        film.releaseYear = -2015;\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(film),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/films",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"films"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "rating is null",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let film;\r",
+											"    try {\r",
+											"        const director = await api.addDirector(rnd.getDirector());\r",
+											"        pm.collectionVariables.set(\"did\", director.id);\r",
+											"\r",
+											"        const category = await api.addCategory(rnd.getCategory());\r",
+											"        pm.collectionVariables.set(\"cid\", category.id);\r",
+											"\r",
+											"        film = rnd.getFilm(director.id, category.id);\r",
+											"        film.rating = null;\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(film),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/films",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"films"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "country blank",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let film;\r",
+											"    try {\r",
+											"        const director = await api.addDirector(rnd.getDirector());\r",
+											"        pm.collectionVariables.set(\"did\", director.id);\r",
+											"\r",
+											"        const category = await api.addCategory(rnd.getCategory());\r",
+											"        pm.collectionVariables.set(\"cid\", category.id);\r",
+											"\r",
+											"        film = rnd.getFilm(director.id, category.id);\r",
+											"        film.country = '            ';\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(film),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/films",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"films"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "director id is null",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let film;\r",
+											"    try {\r",
+											"        const director = await api.addDirector(rnd.getDirector());\r",
+											"        pm.collectionVariables.set(\"did\", director.id);\r",
+											"\r",
+											"        const category = await api.addCategory(rnd.getCategory());\r",
+											"        pm.collectionVariables.set(\"cid\", category.id);\r",
+											"\r",
+											"        film = rnd.getFilm(null, category.id);\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(film),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/films",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"films"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "category id is null",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let film;\r",
+											"    try {\r",
+											"        const director = await api.addDirector(rnd.getDirector());\r",
+											"        pm.collectionVariables.set(\"did\", director.id);\r",
+											"\r",
+											"        const category = await api.addCategory(rnd.getCategory());\r",
+											"        pm.collectionVariables.set(\"cid\", category.id);\r",
+											"\r",
+											"        film = rnd.getFilm(director.id, null);\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(film),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/films",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"films"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "duration invalid format",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let film;\r",
+											"    try {\r",
+											"        const director = await api.addDirector(rnd.getDirector());\r",
+											"        pm.collectionVariables.set(\"did\", director.id);\r",
+											"\r",
+											"        const category = await api.addCategory(rnd.getCategory());\r",
+											"        pm.collectionVariables.set(\"cid\", category.id);\r",
+											"\r",
+											"        let d = new Date();\r",
+											"\r",
+											"        film = rnd.getFilm(director.id, category.id);\r",
+											"        film.duration = d.format(10+'-'+30+'-'+0+0);\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(film),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/films",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"films"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "duration > 24 hours",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let film;\r",
+											"    try {\r",
+											"        const director = await api.addDirector(rnd.getDirector());\r",
+											"        pm.collectionVariables.set(\"did\", director.id);\r",
+											"\r",
+											"        const category = await api.addCategory(rnd.getCategory());\r",
+											"        pm.collectionVariables.set(\"cid\", category.id);\r",
+											"\r",
+											"        let d = new Date();\r",
+											"    \r",
+											"        film = rnd.getFilm(director.id, category.id);\r",
+											"        film.duration = d.format(25+':'+30+':'+0+0);\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(film),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/films",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"films"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "category valid",
+					"item": [
+						{
+							"name": "name size > 300",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let category;\r",
+											"    try {\r",
+											"        category = rnd.getCategory();\r",
+											"        category.name = \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(category),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/categories",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"categories"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "name size < 1",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let category;\r",
+											"    try {\r",
+											"        category = rnd.getCategory();\r",
+											"        category.name = \"\"\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(category),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/categories",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"categories"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "name blank",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let category;\r",
+											"    try {\r",
+											"        category = rnd.getCategory();\r",
+											"        category.name = \"                   \"\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(category),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/categories",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"categories"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "director valid",
+					"item": [
+						{
+							"name": "name size > 300",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let director;\r",
+											"    try {\r",
+											"        director = rnd.getDirector();\r",
+											"        director.name = \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"+\r",
+											"        \"verylongnameverylongnameverylongnameverylongname\"\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(director),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/directors",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"directors"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "name size < 1",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let director;\r",
+											"    try {\r",
+											"        director = rnd.getDirector();\r",
+											"        director.name = \"\"\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(director),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/directors",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"directors"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "name blank",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let director;\r",
+											"    try {\r",
+											"        director = rnd.getDirector();\r",
+											"        director.name = \"                   \"\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(director),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/directors",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"directors"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "discussion valid",
+					"item": [
+						{
+							"name": "title size < 1",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let film;\r",
+											"    try {\r",
+											"        const user = await api.addUser(rnd.getUser());\r",
+											"        pm.collectionVariables.set(\"uid\", user.id)\r",
+											"\r",
+											"        const category = await api.addCategory(rnd.getCategory());\r",
+											"        pm.collectionVariables.set(\"cid\", category.id);\r",
+											"\r",
+											"        disc = rnd.getDiscussion(user.id, category.id);\r",
+											"        disc.title = '';\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(disc),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/discussions",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"discussions"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "title size > 1000",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let film;\r",
+											"    try {\r",
+											"        const user = await api.addUser(rnd.getUser());\r",
+											"        pm.collectionVariables.set(\"uid\", user.id)\r",
+											"\r",
+											"        const category = await api.addCategory(rnd.getCategory());\r",
+											"        pm.collectionVariables.set(\"cid\", category.id);\r",
+											"\r",
+											"        disc = rnd.getDiscussion(user.id, category.id);\r",
+											"        disc.title = \"verylongname\".repeat(84);\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(disc),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/discussions",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"discussions"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "description size > 3000",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let film;\r",
+											"    try {\r",
+											"        const user = await api.addUser(rnd.getUser());\r",
+											"        pm.collectionVariables.set(\"uid\", user.id)\r",
+											"\r",
+											"        const category = await api.addCategory(rnd.getCategory());\r",
+											"        pm.collectionVariables.set(\"cid\", category.id);\r",
+											"\r",
+											"        disc = rnd.getDiscussion(user.id, category.id);\r",
+											"        disc.description = \"verylongdescription\".repeat(158);\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(disc),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/discussions",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"discussions"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "title blank",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let film;\r",
+											"    try {\r",
+											"        const user = await api.addUser(rnd.getUser());\r",
+											"        pm.collectionVariables.set(\"uid\", user.id)\r",
+											"\r",
+											"        const category = await api.addCategory(rnd.getCategory());\r",
+											"        pm.collectionVariables.set(\"cid\", category.id);\r",
+											"\r",
+											"        disc = rnd.getDiscussion(user.id, category.id);\r",
+											"        disc.title = '             ';\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(disc),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/discussions",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"discussions"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "authorId is null",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const main = async () => {\r",
+											"    const api = new API(pm);\r",
+											"    const rnd = new RandomUtils();\r",
+											"\r",
+											"    let film;\r",
+											"    try {\r",
+											"        const user = await api.addUser(rnd.getUser());\r",
+											"        pm.collectionVariables.set(\"uid\", user.id)\r",
+											"\r",
+											"        const category = await api.addCategory(rnd.getCategory());\r",
+											"        pm.collectionVariables.set(\"cid\", category.id);\r",
+											"\r",
+											"        disc = rnd.getDiscussion(user.id, category.id);\r",
+											"        disc.author = null;\r",
+											"    } catch(err) {\r",
+											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+											"    }\r",
+											"\r",
+											"    pm.request.body.update({\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(disc),\r",
+											"        options: { raw: { language: 'json' } }\r",
+											"    });\r",
+											"};\r",
+											"\r",
+											"const interval = setInterval(() => {}, 1000);\r",
+											"\r",
+											"setTimeout(async () => \r",
+											"    {\r",
+											"        try {\r",
+											"            await main();\r",
+											"        } catch (e) {\r",
+											"            console.error(e);\r",
+											"        } finally {\r",
+											"            clearInterval(interval);\r",
+											"        }\r",
+											"    },  \r",
+											"    100 \r",
+											");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ответ должен содержать код статуса 400\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{request_body}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/discussions",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"discussions"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "category",
+			"item": [
+				{
+					"name": "add category",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    let category;\r",
+									"    try {\r",
+									"        category = rnd.getCategory();\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"\r",
+									"    pm.request.body.update({\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify(category),\r",
+									"        options: { raw: { language: 'json' } }\r",
+									"    });\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 201 и данные в формате json\", () => {\r",
+									"    pm.response.to.have.status(201);\r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const source = JSON.parse(pm.request.body.raw);\r",
+									"const target = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Категория должна содержать поля: id, name\", () => {\r",
+									"    pm.expect(target).to.have.property('id');\r",
+									"    pm.expect(target).to.have.property('name');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", () => {\r",
+									"    pm.expect(target.id).to.not.be.null;\r",
+									"    pm.expect(source.name).equal(target.name, 'Имя категории должно соответствовать отправленному в запросе');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{request_body}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get category by id",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        pm.collectionVariables.set(\"cid\", category.id)\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", () => {\r",
+									"    pm.response.to.be.ok;    \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const target = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Категория должна содержать поля: id, name\", () => {\r",
+									"    pm.expect(target).to.have.property('id');\r",
+									"    pm.expect(target).to.have.property('name');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", () => {\r",
+									"    pm.expect(target.id).equal(pm.collectionVariables.get(\"cid\"));\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/categories/:categoryId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories",
+								":categoryId"
+							],
+							"variable": [
+								{
+									"key": "categoryId",
+									"value": "{{cid}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "patch category",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const category1 = await api.addCategory(rnd.getCategory());\r",
+									"        const category2 = category1;\r",
+									"        category2.name = pm.variables.replaceIn('{{$randomDepartment}}');\r",
+									"       \r",
+									"        pm.collectionVariables.set('response', category2);\r",
+									"        pm.collectionVariables.set(\"cid\", category1.id)\r",
+									"        pm.request.body.update({\r",
+									"            mode: 'raw',\r",
+									"            raw: JSON.stringify({\r",
+									"                name: category2.name\r",
+									"            }),\r",
+									"            options: { raw: { language: 'json' } }\r",
+									"        });\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
+									"    pm.response.to.be.ok;    \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const source = pm.collectionVariables.get('response');\r",
+									"const target = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Категория должна содержать поля: id, name\", () => {\r",
+									"    pm.expect(target).to.have.property('id');\r",
+									"    pm.expect(target).to.have.property('name');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", function () {\r",
+									"    pm.expect(source.id).equal(target.id, 'Id должны совпадать');\r",
+									"    pm.expect(source.name).equal(target.name, 'Имена должны совпадать');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/categories/:categoryId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories",
+								":categoryId"
+							],
+							"variable": [
+								{
+									"key": "categoryId",
+									"value": "{{cid}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all categories",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        pm.collectionVariables.set(\"response\", category)\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
+									"    pm.response.to.be.ok;    \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const target = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Категории должны содержать поля: id, name\", function () {\r",
+									"    pm.expect(target[0]).to.have.property('id');\r",
+									"    pm.expect(target[0]).to.have.property('name');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Должна быть найдена как минимум одна категория по заданному фильтру\", function () {\r",
+									"    pm.expect(target.length).to.be.greaterThan(0);\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/categories?size=5&from=0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories"
+							],
+							"query": [
+								{
+									"key": "size",
+									"value": "5"
+								},
+								{
+									"key": "from",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete category",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        const foundedCategory = await api.findCategory(category.id);\r",
+									"        pm.collectionVariables.set(\"cid\", category.id);\r",
+									"        pm.collectionVariables.set(\"response\", foundedCategory)\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 204\", () => {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									"\r",
+									"const source = pm.collectionVariables.get('response');\r",
+									"const categoryId = pm.collectionVariables.get('cid');\r",
+									"\r",
+									"pm.test(\"Категория должна быть найдена до выполнения запроса\", () => {\r",
+									"    pm.expect(source.id).to.eql(categoryId);\r",
+									"});\r",
+									"\r",
+									"let body\r",
+									"const req = {\r",
+									"                url: \"http://localhost:8080/api/v1/categories/\" + categoryId,\r",
+									"                method: \"GET\",\r",
+									"                body: body == null ? \"\" : JSON.stringify(body),\r",
+									"                header: { \"Content-Type\": \"application/json\" },\r",
+									"            };\r",
+									"pm.sendRequest(req, (error, response) => {\r",
+									"    pm.test(\"Категория должна быть удалёна после выполнения запроса\", () => {\r",
+									"        pm.expect(response.code).to.eql(404);\r",
+									"    });\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/categories/:categoryId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories",
+								":categoryId"
+							],
+							"variable": [
+								{
+									"key": "categoryId",
+									"value": "{{cid}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "director",
+			"item": [
+				{
+					"name": "add director",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    let entity;\r",
+									"    try {\r",
+									"        entity = rnd.getDirector();\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"\r",
+									"    pm.request.body.update({\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify(entity),\r",
+									"        options: { raw: { language: 'json' } }\r",
+									"    });\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 201 и данные в формате json\", () => {\r",
+									"    pm.response.to.have.status(201);\r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const source = JSON.parse(pm.request.body.raw);\r",
+									"const target = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Режиссер должен содержать поля: id, name\", () => {\r",
+									"    pm.expect(target).to.have.property('id');\r",
+									"    pm.expect(target).to.have.property('name');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", () => {\r",
+									"    pm.expect(target.id).to.not.be.null;\r",
+									"    pm.expect(source.name).equal(target.name, 'Имя режиссера должно соответствовать отправленному в запросе');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{request_body}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/directors",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"directors"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get director by id",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const entity = await api.addDirector(rnd.getDirector());\r",
+									"        pm.collectionVariables.set(\"did\", entity.id)\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", () => {\r",
+									"    pm.response.to.be.ok;    \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const target = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Режиссер должен содержать поля: id, name\", () => {\r",
+									"    pm.expect(target).to.have.property('id');\r",
+									"    pm.expect(target).to.have.property('name');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", () => {\r",
+									"    pm.expect(target.id).equal(pm.collectionVariables.get(\"did\"));\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/directors/:directorId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"directors",
+								":directorId"
+							],
+							"variable": [
+								{
+									"key": "directorId",
+									"value": "{{did}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "patch director",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const entity1 = await api.addDirector(rnd.getDirector());\r",
+									"        const entity2 = entity1;\r",
+									"        entity2.name = pm.variables.replaceIn('{{$randomFullName}}');\r",
+									"       \r",
+									"        pm.collectionVariables.set('response', entity2);\r",
+									"        pm.collectionVariables.set(\"did\", entity1.id)\r",
+									"        pm.request.body.update({\r",
+									"            mode: 'raw',\r",
+									"            raw: JSON.stringify({\r",
+									"                name: entity2.name\r",
+									"            }),\r",
+									"            options: { raw: { language: 'json' } }\r",
+									"        });\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
+									"    pm.response.to.be.ok;    \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const source = pm.collectionVariables.get('response');\r",
+									"const target = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Режиссер должен содержать поля: id, name\", () => {\r",
+									"    pm.expect(target).to.have.property('id');\r",
+									"    pm.expect(target).to.have.property('name');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", function () {\r",
+									"    pm.expect(source.id).equal(target.id, 'Id должны совпадать');\r",
+									"    pm.expect(source.name).equal(target.name, 'Имена должны совпадать');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/directors/:directorId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"directors",
+								":directorId"
+							],
+							"variable": [
+								{
+									"key": "directorId",
+									"value": "{{did}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all directors",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const director = await api.addDirector(rnd.getDirector());\r",
+									"        pm.collectionVariables.set(\"response\", director)\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
+									"    pm.response.to.be.ok;    \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const target = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Режиссеры должны содержать поля: id, name\", function () {\r",
+									"    pm.expect(target[0]).to.have.property('id');\r",
+									"    pm.expect(target[0]).to.have.property('name');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Должен быть найден как минимум один режиссер по заданному фильтру\", function () {\r",
+									"    pm.expect(target.length).to.be.greaterThan(0);\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/directors?size=5&from=0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"directors"
+							],
+							"query": [
+								{
+									"key": "size",
+									"value": "5"
+								},
+								{
+									"key": "from",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete director",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const director = await api.addDirector(rnd.getDirector());\r",
+									"        const foundedDirector = await api.findDirector(director.id);\r",
+									"        pm.collectionVariables.set(\"did\", director.id);\r",
+									"        pm.collectionVariables.set(\"response\", foundedDirector)\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 204\", () => {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									"\r",
+									"const source = pm.collectionVariables.get('response');\r",
+									"const directorId = pm.collectionVariables.get('did');\r",
+									"\r",
+									"pm.test(\"Режиссер должен быть найден до выполнения запроса\", () => {\r",
+									"    pm.expect(source.id).to.eql(directorId);\r",
+									"});\r",
+									"\r",
+									"let body\r",
+									"const req = {\r",
+									"                url: \"http://localhost:8080/api/v1/directors/\" + directorId,\r",
+									"                method: \"GET\",\r",
+									"                body: body == null ? \"\" : JSON.stringify(body),\r",
+									"                header: { \"Content-Type\": \"application/json\" },\r",
+									"            };\r",
+									"pm.sendRequest(req, (error, response) => {\r",
+									"    pm.test(\"Режиссер должен быть удалён после выполнения запроса\", () => {\r",
+									"        pm.expect(response.code).to.eql(404);\r",
+									"    });\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/directors/:directorId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"directors",
+								":directorId"
+							],
+							"variable": [
+								{
+									"key": "directorId",
+									"value": "{{did}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "film",
+			"item": [
+				{
+					"name": "add film",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    let film;\r",
+									"    try {\r",
+									"        const director = await api.addDirector(rnd.getDirector());\r",
+									"        pm.collectionVariables.set(\"did\", director.id);\r",
+									"\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        pm.collectionVariables.set(\"cid\", category.id);\r",
+									"\r",
+									"        film = rnd.getFilm(director.id, category.id);\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"\r",
+									"    pm.request.body.update({\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify(film),\r",
+									"        options: { raw: { language: 'json' } }\r",
+									"    });\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 201 и данные в формате json\", () => {\r",
+									"    pm.response.to.have.status(201);\r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const source = JSON.parse(pm.request.body.raw);\r",
+									"const target = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Пользователь должен содержать поля: id, title, description, releaseYear, duration, directorId, categoryId, rating, country\", () => {\r",
+									"    pm.expect(target).to.have.property('id');\r",
+									"    pm.expect(target).to.have.property('title');\r",
+									"    pm.expect(target).to.have.property('description');\r",
+									"    pm.expect(target).to.have.property('releaseYear');\r",
+									"    pm.expect(target).to.have.property('duration');\r",
+									"    pm.expect(target).to.have.property('directorId');\r",
+									"    pm.expect(target).to.have.property('categoryId');\r",
+									"    pm.expect(target).to.have.property('rating');\r",
+									"    pm.expect(target).to.have.property('country');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", () => {\r",
+									"    pm.expect(target.id).to.not.be.null;\r",
+									"    pm.expect(source.title).equal(target.title, 'Название фильма должно соответствовать отправленному в запросе');\r",
+									"    pm.expect(source.description).equal(target.description, 'Описание фильма должно соответствовать отправленному в запросе');\r",
+									"    pm.expect(source.releaseYear).equal(target.releaseYear, 'Год выхода фильма должно соответствовать отправленному в запросе');\r",
+									"    pm.expect(source.duration).equal(target.duration, 'Длительность фильма должно соответствовать отправленному в запросе');\r",
+									"    pm.expect(source.directorId).equal(target.directorId, 'Id директора фильма должно соответствовать отправленному в запросе');\r",
+									"    pm.expect(source.categoryId).equal(target.categoryId, 'Id категории фильма должно соответствовать отправленному в запросе');\r",
+									"    pm.expect(source.rating).equal(target.rating, 'Рейтинг фильма должно соответствовать отправленному в запросе');\r",
+									"    pm.expect(source.country).equal(target.country, 'Страна фильма должно соответствовать отправленному в запросе');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{request_body}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/films",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"films"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get film by id",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const director = await api.addDirector(rnd.getDirector());\r",
+									"        pm.collectionVariables.set(\"did\", director.id);\r",
+									"\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        pm.collectionVariables.set(\"cid\", category.id);\r",
+									"\r",
+									"        const film = await api.addFilm(rnd.getFilm(director.id, category.id));\r",
+									"        pm.collectionVariables.set(\"fid\", film.id)\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", () => {\r",
+									"    pm.response.to.be.ok;    \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const target = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Пользователь должен содержать поля: id, title, description, releaseYear, duration, directorId, categoryId, rating, country\", () => {\r",
+									"    pm.expect(target).to.have.property('id');\r",
+									"    pm.expect(target).to.have.property('title');\r",
+									"    pm.expect(target).to.have.property('description');\r",
+									"    pm.expect(target).to.have.property('releaseYear');\r",
+									"    pm.expect(target).to.have.property('duration');\r",
+									"    pm.expect(target).to.have.property('directorId');\r",
+									"    pm.expect(target).to.have.property('categoryId');\r",
+									"    pm.expect(target).to.have.property('rating');\r",
+									"    pm.expect(target).to.have.property('country');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", () => {\r",
+									"    pm.expect(target.id).equal(pm.collectionVariables.get(\"fid\"));\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/films/:filmId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"films",
+								":filmId"
+							],
+							"variable": [
+								{
+									"key": "filmId",
+									"value": "{{fid}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "patch film",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const director = await api.addDirector(rnd.getDirector());\r",
+									"        pm.collectionVariables.set(\"did\", director.id);\r",
+									"\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        pm.collectionVariables.set(\"cid\", category.id);\r",
+									"\r",
+									"        const film1 = await api.addFilm(rnd.getFilm(director.id, category.id));\r",
+									"        const film2 = film1;\r",
+									"        film2.title = pm.variables.replaceIn('{{$randomLoremWord}}');\r",
+									"        film2.releaseYear = _.random(1895,2023);\r",
+									"       \r",
+									"        pm.collectionVariables.set('response', film2);\r",
+									"        pm.collectionVariables.set(\"fid\", film1.id)\r",
+									"        pm.request.body.update({\r",
+									"            mode: 'raw',\r",
+									"            raw: JSON.stringify({\r",
+									"                title: film2.title,\r",
+									"                releaseYear: film2.releaseYear\r",
+									"            }),\r",
+									"            options: { raw: { language: 'json' } }\r",
+									"        });\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
+									"    pm.response.to.be.ok;    \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const source = pm.collectionVariables.get('response');\r",
+									"const target = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Пользователь должен содержать поля: id, title, description, releaseYear, duration, directorId, categoryId, rating, country\", () => {\r",
+									"    pm.expect(target).to.have.property('id');\r",
+									"    pm.expect(target).to.have.property('title');\r",
+									"    pm.expect(target).to.have.property('description');\r",
+									"    pm.expect(target).to.have.property('releaseYear');\r",
+									"    pm.expect(target).to.have.property('duration');\r",
+									"    pm.expect(target).to.have.property('directorId');\r",
+									"    pm.expect(target).to.have.property('categoryId');\r",
+									"    pm.expect(target).to.have.property('rating');\r",
+									"    pm.expect(target).to.have.property('country');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", () => {\r",
+									"    pm.expect(target.id).to.not.be.null;\r",
+									"    pm.expect(source.title).equal(target.title, 'Название фильма должно соответствовать отправленному в запросе');\r",
+									"    pm.expect(source.description).equal(target.description, 'Описание фильма должно соответствовать отправленному в запросе');\r",
+									"    pm.expect(source.releaseYear).equal(target.releaseYear, 'Год выхода фильма должно соответствовать отправленному в запросе');\r",
+									"    pm.expect(source.duration).equal(target.duration, 'Длительность фильма должно соответствовать отправленному в запросе');\r",
+									"    pm.expect(source.directorId).equal(target.directorId, 'Id директора фильма должно соответствовать отправленному в запросе');\r",
+									"    pm.expect(source.categoryId).equal(target.categoryId, 'Id категории фильма должно соответствовать отправленному в запросе');\r",
+									"    pm.expect(source.rating).equal(target.rating, 'Рейтинг фильма должно соответствовать отправленному в запросе');\r",
+									"    pm.expect(source.country).equal(target.country, 'Страна фильма должно соответствовать отправленному в запросе');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/films/:filmId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"films",
+								":filmId"
+							],
+							"variable": [
+								{
+									"key": "filmId",
+									"value": "{{fid}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "search films",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
+									"    pm.response.to.be.ok;    \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const source = pm.collectionVariables.get('response');\r",
+									"const target = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Пользователь должен содержать поля: id, title, description, releaseYear, duration, directorId, categoryId, rating, country\", function () {\r",
+									"    pm.expect(target[0]).to.have.property('id');\r",
+									"    pm.expect(target[0]).to.have.property('title');\r",
+									"    pm.expect(target[0]).to.have.property('description');\r",
+									"    pm.expect(target[0]).to.have.property('releaseYear');\r",
+									"    pm.expect(target[0]).to.have.property('duration');\r",
+									"    pm.expect(target[0]).to.have.property('directorId');\r",
+									"    pm.expect(target[0]).to.have.property('categoryId');\r",
+									"    pm.expect(target[0]).to.have.property('rating');\r",
+									"    pm.expect(target[0]).to.have.property('country');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Должен быть найден как минимум один фильм по заданному фильтру с соответствующими данными\", function () {\r",
+									"    pm.expect(target.length).to.be.greaterThan(0);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const director = await api.addDirector(rnd.getDirector());\r",
+									"        pm.collectionVariables.set(\"did\", director.id);\r",
+									"\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        pm.collectionVariables.set(\"cid\", category.id);\r",
+									"\r",
+									"        const film = await api.addFilm(rnd.getFilm(director.id, category.id));\r",
+									"        pm.collectionVariables.set(\"country\", film.country)\r",
+									"        pm.collectionVariables.set(\"response\", film)\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/films?size=5&from=0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"films"
+							],
+							"query": [
+								{
+									"key": "size",
+									"value": "5"
+								},
+								{
+									"key": "from",
+									"value": "0"
+								},
+								{
+									"key": "country",
+									"value": "{{country}}",
+									"disabled": true
+								},
+								{
+									"key": "title",
+									"value": "Small",
+									"disabled": true
+								},
+								{
+									"key": "releaseYear",
+									"value": "1952",
+									"disabled": true
+								},
+								{
+									"key": "rating",
+									"value": "G",
+									"disabled": true
+								},
+								{
+									"key": "directorId",
+									"value": "{{did}}",
+									"disabled": true
+								},
+								{
+									"key": "categoryId",
+									"value": "{{cid}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete film",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const director = await api.addDirector(rnd.getDirector());\r",
+									"        pm.collectionVariables.set(\"did\", director.id);\r",
+									"\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        pm.collectionVariables.set(\"cid\", category.id);\r",
+									"\r",
+									"        const film = await api.addFilm(rnd.getFilm(director.id, category.id));\r",
+									"        const foundedFilm = await api.findFilm(film.id);\r",
+									"        pm.collectionVariables.set(\"fid\", film.id);\r",
+									"        pm.collectionVariables.set(\"response\", foundedFilm)\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 204\", () => {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									"\r",
+									"const source = pm.collectionVariables.get('response');\r",
+									"const filmId = pm.collectionVariables.get('fid');\r",
+									"\r",
+									"pm.test(\"Фильм должен быть найден до выполнения запроса\", () => {\r",
+									"    pm.expect(source.id).to.eql(filmId);\r",
+									"});\r",
+									"\r",
+									"let body\r",
+									"const req = {\r",
+									"                url: \"http://localhost:8080/api/v1/films/\" + filmId,\r",
+									"                method: \"GET\",\r",
+									"                body: body == null ? \"\" : JSON.stringify(body),\r",
+									"                header: { \"Content-Type\": \"application/json\" },\r",
+									"            };\r",
+									"pm.sendRequest(req, (error, response) => {\r",
+									"    pm.test(\"Фильм должен быть удалён после выполнения запроса\", () => {\r",
+									"        pm.expect(response.code).to.eql(404);\r",
+									"    });\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/films/:filmId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"films",
+								":filmId"
+							],
+							"variable": [
+								{
+									"key": "filmId",
+									"value": "{{fid}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "discussion",
+			"item": [
+				{
+					"name": "add discussion",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    let disc;\r",
+									"    try {\r",
+									"        const user = await api.addUser(rnd.getUser());\r",
+									"        pm.collectionVariables.set(\"uid\", user.id)\r",
+									"\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        pm.collectionVariables.set(\"cid\", category.id);\r",
+									"\r",
+									"        disc = rnd.getDiscussion(user.id, category.id);\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"\r",
+									"    pm.request.body.update({\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify(disc),\r",
+									"        options: { raw: { language: 'json' } }\r",
+									"    });\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 201 и данные в формате json\", () => {\r",
+									"    pm.response.to.have.status(201);\r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const source = JSON.parse(pm.request.body.raw);\r",
+									"const target = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Обсуждение должно содержать поля: id, title, description, openedAt, author, categories\", () => {\r",
+									"    pm.expect(target).to.have.property('id');\r",
+									"    pm.expect(target).to.have.property('title');\r",
+									"    pm.expect(target).to.have.property('description');\r",
+									"    pm.expect(target).to.have.property('openedAt');\r",
+									"    pm.expect(target).to.have.property('author');\r",
+									"    pm.expect(target).to.have.property('categories');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", () => {\r",
+									"    pm.expect(target.id).to.not.be.null;\r",
+									"    pm.expect(source.title).equal(target.title, 'Название обсуждения должно соответствовать отправленному в запросе');\r",
+									"    pm.expect(source.description).equal(target.description, 'Описание обсуждения должно соответствовать отправленному в запросе');\r",
+									"    pm.expect(source.author).equal(target.author.id, 'Автор обсуждения должен соответствовать отправленному в запросе');\r",
+									"    pm.expect(target.categories.length).to.be.greaterThan(0,'Количество категорий должно быть больше 0');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{request_body}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/discussions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"discussions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get discussion by id",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const user = await api.addUser(rnd.getUser());\r",
+									"        pm.collectionVariables.set(\"uid\", user.id)\r",
+									"\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        pm.collectionVariables.set(\"cid\", category.id);\r",
+									"\r",
+									"        const discussion = await api.addDiscussion(rnd.getDiscussion(user.id, category.id));\r",
+									"        pm.collectionVariables.set(\"dsid\", discussion.id)\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", () => {\r",
+									"    pm.response.to.be.ok;    \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const target = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Обсуждение должно содержать поля: id, title, description, openedAt, author, categories\", () => {\r",
+									"    pm.expect(target).to.have.property('id');\r",
+									"    pm.expect(target).to.have.property('title');\r",
+									"    pm.expect(target).to.have.property('description');\r",
+									"    pm.expect(target).to.have.property('openedAt');\r",
+									"    pm.expect(target).to.have.property('author');\r",
+									"    pm.expect(target).to.have.property('categories');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", () => {\r",
+									"    pm.expect(target.id).equal(pm.collectionVariables.get(\"dsid\"));\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/discussions/:discussionId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"discussions",
+								":discussionId"
+							],
+							"variable": [
+								{
+									"key": "discussionId",
+									"value": "{{dsid}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "patch discussion",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const user = await api.addUser(rnd.getUser());\r",
+									"        pm.collectionVariables.set(\"uid\", user.id)\r",
+									"\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        pm.collectionVariables.set(\"cid\", category.id);\r",
+									"\r",
+									"        const disc1 = await api.addDiscussion(rnd.getDiscussion(user.id, category.id));\r",
+									"        const disc2 = disc1;\r",
+									"        disc2.title = pm.variables.replaceIn('{{$randomLoremWord}}');\r",
+									"        disc2.description = pm.variables.replaceIn('{{$randomLoremSentence}}');\r",
+									"       \r",
+									"        pm.collectionVariables.set('response', disc2);\r",
+									"        pm.collectionVariables.set(\"dsid\", disc1.id)\r",
+									"        pm.request.body.update({\r",
+									"            mode: 'raw',\r",
+									"            raw: JSON.stringify({\r",
+									"                title: disc2.title,\r",
+									"                description: disc2.description\r",
+									"            }),\r",
+									"            options: { raw: { language: 'json' } }\r",
+									"        });\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
+									"    pm.response.to.be.ok;    \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const source = pm.collectionVariables.get('response');\r",
+									"const target = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Обсуждение должно содержать поля: id, title, description, openedAt, author, categories\", () => {\r",
+									"    pm.expect(target).to.have.property('id');\r",
+									"    pm.expect(target).to.have.property('title');\r",
+									"    pm.expect(target).to.have.property('description');\r",
+									"    pm.expect(target).to.have.property('openedAt');\r",
+									"    pm.expect(target).to.have.property('author');\r",
+									"    pm.expect(target).to.have.property('categories');\r",
+									"});\r",
+									"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", () => {\r",
+									"    pm.expect(target.id).to.not.be.null;\r",
+									"    pm.expect(source.title).equal(target.title, 'Название обсуждения должно соответствовать отправленному в запросе');\r",
+									"    pm.expect(source.description).equal(target.description, 'Описание обсуждения должно соответствовать отправленному в запросе');\r",
+									"    pm.expect(source.author.id).equal(target.author.id, 'Автор обсуждения должен соответствовать отправленному в запросе');\r",
+									"    pm.expect(target.categories.length).to.be.greaterThan(0,'Количество категорий должно быть больше 0');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/discussions/:discussionId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"discussions",
+								":discussionId"
+							],
+							"variable": [
+								{
+									"key": "discussionId",
+									"value": "{{dsid}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "search discussions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
+									"    pm.response.to.be.ok;    \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const source = pm.collectionVariables.get('response');\r",
+									"const target = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Обсуждение должно содержать поля: id, title, description, openedAt, author, categories\", () => {\r",
+									"    pm.expect(target[0]).to.have.property('id');\r",
+									"    pm.expect(target[0]).to.have.property('title');\r",
+									"    pm.expect(target[0]).to.have.property('description');\r",
+									"    pm.expect(target[0]).to.have.property('openedAt');\r",
+									"    pm.expect(target[0]).to.have.property('author');\r",
+									"    pm.expect(target[0]).to.have.property('categories');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Должно быть найдено как минимум одно обсуждение по заданному фильтру с соответствующими данными\", function () {\r",
+									"   pm.expect(target.length).to.be.greaterThan(0,'Количество дискуссий должно быть больше 0');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"         const user = await api.addUser(rnd.getUser());\r",
+									"        pm.collectionVariables.set(\"uid\", user.id)\r",
+									"\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        pm.collectionVariables.set(\"cid\", category.id);\r",
+									"\r",
+									"        const discussion = await api.addDiscussion(rnd.getDiscussion(user.id, category.id));\r",
+									"        pm.collectionVariables.set(\"dsid\", discussion.id)\r",
+									"\r",
+									"        pm.collectionVariables.set(\"status\", discussion.status)\r",
+									"        pm.collectionVariables.set(\"response\", discussion)\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/discussions?size=5&from=0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"discussions"
+							],
+							"query": [
+								{
+									"key": "size",
+									"value": "5"
+								},
+								{
+									"key": "from",
+									"value": "0"
+								},
+								{
+									"key": "status",
+									"value": "{{status}}",
+									"disabled": true
+								},
+								{
+									"key": "authorId",
+									"value": "{{uid}}",
+									"disabled": true
+								},
+								{
+									"key": "openedAt",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "categoriesIds",
+									"value": "{{cid}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete discussion",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const user = await api.addUser(rnd.getUser());\r",
+									"        pm.collectionVariables.set(\"uid\", user.id)\r",
+									"\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        pm.collectionVariables.set(\"cid\", category.id);\r",
+									"\r",
+									"        const disc = await api.addDiscussion(rnd.getDiscussion(user.id, category.id));\r",
+									"        const foundedDisc = await api.findDiscussion(disc.id);\r",
+									"        pm.collectionVariables.set(\"dsid\", disc.id);\r",
+									"        pm.collectionVariables.set(\"response\", foundedDisc)\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 204\", () => {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									"\r",
+									"const source = pm.collectionVariables.get('response');\r",
+									"const discId = pm.collectionVariables.get('dsid');\r",
+									"\r",
+									"pm.test(\"Обсуждение должно быть найдено до выполнения запроса\", () => {\r",
+									"    pm.expect(source.id).to.eql(discId);\r",
+									"});\r",
+									"\r",
+									"let body\r",
+									"const req = {\r",
+									"                url: \"http://localhost:8080/api/v1/discussions/\" + discId,\r",
+									"                method: \"GET\",\r",
+									"                body: body == null ? \"\" : JSON.stringify(body),\r",
+									"                header: { \"Content-Type\": \"application/json\" },\r",
+									"            };\r",
+									"pm.sendRequest(req, (error, response) => {\r",
+									"    pm.test(\"Обсуждение должно быть удалёно после выполнения запроса\", () => {\r",
+									"        pm.expect(response.code).to.eql(404);\r",
+									"    });\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/discussions/:discussionId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"discussions",
+								":discussionId"
+							],
+							"variable": [
+								{
+									"key": "discussionId",
+									"value": "{{dsid}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "comment",
+			"item": [
+				{
+					"name": "add comment",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    let comment;\r",
+									"    try {\r",
+									"        const user = await api.addUser(rnd.getUser());\r",
+									"        pm.collectionVariables.set(\"uid\", user.id)\r",
+									"\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        pm.collectionVariables.set(\"cid\", category.id);   \r",
+									"        \r",
+									"        const disc = await api.addDiscussion(rnd.getDiscussion(user.id, category.id));\r",
+									"        pm.collectionVariables.set(\"dsid\", disc.id);\r",
+									"\r",
+									"        comment = rnd.getComment(user.id);\r",
+									"        pm.collectionVariables.set(\"cmid\", comment.id);\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"\r",
+									"    pm.request.body.update({\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify(comment),\r",
+									"        options: { raw: { language: 'json' } }\r",
+									"    });\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 201 и данные в формате json\", () => {\r",
+									"    pm.response.to.have.status(201);\r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const source = JSON.parse(pm.request.body.raw);\r",
+									"const target = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Комментарий должен содержать поля: id, author, message, discussion, likes, dislikes\", () => {\r",
+									"    pm.expect(target).to.have.property('id');\r",
+									"    pm.expect(target).to.have.property('author');\r",
+									"    pm.expect(target).to.have.property('message');\r",
+									"    pm.expect(target).to.have.property('discussion');\r",
+									"    pm.expect(target).to.have.property('likes');\r",
+									"    pm.expect(target).to.have.property('dislikes');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", () => {\r",
+									"    pm.expect(target.id).to.not.be.null;\r",
+									"    pm.expect(source.author).equal(target.author, 'Автор комментария должен соответствовать отправленному в запросе');\r",
+									"    pm.expect(source.message).equal(target.message, 'Сообщение комментария должно соответствовать отправленному в запросе');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{request_body}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/discussions/:discussionId/comments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"discussions",
+								":discussionId",
+								"comments"
+							],
+							"variable": [
+								{
+									"key": "discussionId",
+									"value": "{{dsid}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "like comment",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"           const user = await api.addUser(rnd.getUser());\r",
+									"        pm.collectionVariables.set(\"uid\", user.id)\r",
+									"\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        pm.collectionVariables.set(\"cid\", category.id);\r",
+									"\r",
+									"        const discussion = await api.addDiscussion(rnd.getDiscussion(user.id, category.id));\r",
+									"        pm.collectionVariables.set(\"dsid\", discussion.id)\r",
+									"\r",
+									"        const comment = await api.addComment(rnd.getComment(user.id), discussion.id);\r",
+									"        pm.collectionVariables.set(\"cmid\", comment.id);\r",
+									"        const foundComment = await api.findComment(comment.id, discussion.id);\r",
+									"        pm.collectionVariables.set(\"response\", foundComment);\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 204\", () => {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									"\r",
+									"const source = pm.collectionVariables.get('response');\r",
+									"const comId = pm.collectionVariables.get('cmid');\r",
+									"const discId = pm.collectionVariables.get('dsid');\r",
+									"\r",
+									"let body\r",
+									"const req = {\r",
+									"                url: \"http://localhost:8080/api/v1/discussions/\" + discId+\"/comments/\"+comId,\r",
+									"                method: \"GET\",\r",
+									"                body: body == null ? \"\" : JSON.stringify(body),\r",
+									"                header: { \"Content-Type\": \"application/json\" },\r",
+									"            };\r",
+									"pm.sendRequest(req, (error, response) => {\r",
+									"    const target = response.json();\r",
+									"    pm.test(\"Данные в ответе должны соответствовать данным в запросе\", () => {\r",
+									"        pm.expect(target.id).to.not.be.null;\r",
+									"        pm.expect(source.author).equal(target.author, 'Автор комментария должен соответствовать отправленному в запросе');\r",
+									"        pm.expect(source.message).equal(target.message, 'Сообщение комментария должно соответствовать отправленному в запросе');\r",
+									"        pm.expect(target.likes).equal(1, 'Количество лайков должно быть 1');\r",
+									"        pm.expect(target.dislikes).equal(0, 'Количество дизлайков должно быть 0');\r",
+									"    });\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/discussions/:discussionId/comments/:commentId/like",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"discussions",
+								":discussionId",
+								"comments",
+								":commentId",
+								"like"
+							],
+							"variable": [
+								{
+									"key": "discussionId",
+									"value": "{{dsid}}"
+								},
+								{
+									"key": "commentId",
+									"value": "{{cmid}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "dislike comment",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"           const user = await api.addUser(rnd.getUser());\r",
+									"        pm.collectionVariables.set(\"uid\", user.id)\r",
+									"\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        pm.collectionVariables.set(\"cid\", category.id);\r",
+									"\r",
+									"        const discussion = await api.addDiscussion(rnd.getDiscussion(user.id, category.id));\r",
+									"        pm.collectionVariables.set(\"dsid\", discussion.id)\r",
+									"\r",
+									"        const comment = await api.addComment(rnd.getComment(user.id), discussion.id);\r",
+									"        pm.collectionVariables.set(\"cmid\", comment.id);\r",
+									"        const foundComment = await api.findComment(comment.id, discussion.id);\r",
+									"        pm.collectionVariables.set(\"response\", foundComment);\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 204\", () => {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									"\r",
+									"const source = pm.collectionVariables.get('response');\r",
+									"const comId = pm.collectionVariables.get('cmid');\r",
+									"const discId = pm.collectionVariables.get('dsid');\r",
+									"\r",
+									"let body\r",
+									"const req = {\r",
+									"                url: \"http://localhost:8080/api/v1/discussions/\" + discId+\"/comments/\"+comId,\r",
+									"                method: \"GET\",\r",
+									"                body: body == null ? \"\" : JSON.stringify(body),\r",
+									"                header: { \"Content-Type\": \"application/json\" },\r",
+									"            };\r",
+									"pm.sendRequest(req, (error, response) => {\r",
+									"    const target = response.json();\r",
+									"    pm.test(\"Данные в ответе должны соответствовать данным в запросе\", () => {\r",
+									"        pm.expect(target.id).to.not.be.null;\r",
+									"        pm.expect(source.author).equal(target.author, 'Автор комментария должен соответствовать отправленному в запросе');\r",
+									"        pm.expect(source.message).equal(target.message, 'Сообщение комментария должно соответствовать отправленному в запросе');\r",
+									"        pm.expect(target.likes).equal(0, 'Количество лайков должно быть 0');\r",
+									"        pm.expect(target.dislikes).equal(1, 'Количество дизлайков должно быть 1');\r",
+									"    });\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/discussions/:discussionId/comments/:commentId/dislike",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"discussions",
+								":discussionId",
+								"comments",
+								":commentId",
+								"dislike"
+							],
+							"variable": [
+								{
+									"key": "discussionId",
+									"value": "{{dsid}}"
+								},
+								{
+									"key": "commentId",
+									"value": "{{cmid}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get comment by id",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const user = await api.addUser(rnd.getUser());\r",
+									"        pm.collectionVariables.set(\"uid\", user.id)\r",
+									"\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        pm.collectionVariables.set(\"cid\", category.id);\r",
+									"\r",
+									"        const discussion = await api.addDiscussion(rnd.getDiscussion(user.id, category.id));\r",
+									"        pm.collectionVariables.set(\"dsid\", discussion.id)\r",
+									"\r",
+									"        const comment = await api.addComment(rnd.getComment(user.id), discussion.id);\r",
+									"        pm.collectionVariables.set(\"cmid\", comment.id)\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", () => {\r",
+									"    pm.response.to.be.ok;    \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const target = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Комментарий должен содержать поля: id, author, message, discussion, likes, dislikes\", () => {\r",
+									"    pm.expect(target).to.have.property('id');\r",
+									"    pm.expect(target).to.have.property('author');\r",
+									"    pm.expect(target).to.have.property('message');\r",
+									"    pm.expect(target).to.have.property('discussion');\r",
+									"    pm.expect(target).to.have.property('likes');\r",
+									"    pm.expect(target).to.have.property('dislikes');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", () => {\r",
+									"    pm.expect(target.id).equal(pm.collectionVariables.get(\"cmid\"));\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/discussions/:discussionId/comments/:commentId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"discussions",
+								":discussionId",
+								"comments",
+								":commentId"
+							],
+							"variable": [
+								{
+									"key": "discussionId",
+									"value": "{{dsid}}"
+								},
+								{
+									"key": "commentId",
+									"value": "{{cmid}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "patch comment",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const user = await api.addUser(rnd.getUser());\r",
+									"        pm.collectionVariables.set(\"uid\", user.id)\r",
+									"\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        pm.collectionVariables.set(\"cid\", category.id);\r",
+									"\r",
+									"        const discussion = await api.addDiscussion(rnd.getDiscussion(user.id, category.id));\r",
+									"        pm.collectionVariables.set(\"dsid\", discussion.id)\r",
+									"\r",
+									"        const comment1 = await api.addComment(rnd.getComment(user.id), discussion.id);\r",
+									"        const comment2 = comment1;\r",
+									"        comment2.message = pm.variables.replaceIn('{{$randomLoremSentence}}');\r",
+									"\r",
+									"        pm.collectionVariables.set('response', comment2);\r",
+									"        pm.collectionVariables.set(\"cmid\", comment1.id)\r",
+									"        pm.request.body.update({\r",
+									"            mode: 'raw',\r",
+									"            raw: JSON.stringify({\r",
+									"                message: comment2.message\r",
+									"            }),\r",
+									"            options: { raw: { language: 'json' } }\r",
+									"        });\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
+									"    pm.response.to.be.ok;    \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const source = pm.collectionVariables.get('response');\r",
+									"const target = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Комментарий должен содержать поля: id, author, message, discussion, likes, dislikes\", () => {\r",
+									"    pm.expect(target).to.have.property('id');\r",
+									"    pm.expect(target).to.have.property('author');\r",
+									"    pm.expect(target).to.have.property('message');\r",
+									"    pm.expect(target).to.have.property('discussion');\r",
+									"    pm.expect(target).to.have.property('likes');\r",
+									"    pm.expect(target).to.have.property('dislikes');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", () => {\r",
+									"    pm.expect(target.id).to.not.be.null;\r",
+									"    pm.expect(source.author).equal(target.author, 'Автор комментария должен соответствовать отправленному в запросе');\r",
+									"    pm.expect(source.message).equal(target.message, 'Сообщение комментария должно соответствовать отправленному в запросе');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/discussions/:discussionId/comments/:commentId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"discussions",
+								":discussionId",
+								"comments",
+								":commentId"
+							],
+							"variable": [
+								{
+									"key": "discussionId",
+									"value": "{{dsid}}"
+								},
+								{
+									"key": "commentId",
+									"value": "{{cmid}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all comments by discussion",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
+									"    pm.response.to.be.ok;    \r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const source = pm.collectionVariables.get('response');\r",
+									"const target = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Комментарий должен содержать поля: id, author, message, discussion, likes, dislikes\", () => {\r",
+									"    pm.expect(target[0]).to.have.property('id');\r",
+									"    pm.expect(target[0]).to.have.property('author');\r",
+									"    pm.expect(target[0]).to.have.property('message');\r",
+									"    pm.expect(target[0]).to.have.property('discussion');\r",
+									"    pm.expect(target[0]).to.have.property('likes');\r",
+									"    pm.expect(target[0]).to.have.property('dislikes');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Должен быть найден как минимум один комментарий по заданному фильтру с соответствующими данными\", function () {\r",
+									"   pm.expect(target.length).to.be.greaterThan(0,'Количество комментариев должно быть больше 0');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const user = await api.addUser(rnd.getUser());\r",
+									"        pm.collectionVariables.set(\"uid\", user.id)\r",
+									"\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        pm.collectionVariables.set(\"cid\", category.id);\r",
+									"\r",
+									"        const discussion = await api.addDiscussion(rnd.getDiscussion(user.id, category.id));\r",
+									"        pm.collectionVariables.set(\"dsid\", discussion.id)\r",
+									"\r",
+									"        const comment = await api.addComment(rnd.getComment(user.id), discussion.id);\r",
+									"        pm.collectionVariables.set(\"cmid\", comment.id)\r",
+									"\r",
+									"        pm.collectionVariables.set(\"response\", comment)\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/discussions/:discussionId/comments?size=5&from=0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"discussions",
+								":discussionId",
+								"comments"
+							],
+							"query": [
+								{
+									"key": "size",
+									"value": "5"
+								},
+								{
+									"key": "from",
+									"value": "0"
+								}
+							],
+							"variable": [
+								{
+									"key": "discussionId",
+									"value": "{{dsid}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete comment",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const user = await api.addUser(rnd.getUser());\r",
+									"        pm.collectionVariables.set(\"uid\", user.id)\r",
+									"\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        pm.collectionVariables.set(\"cid\", category.id);\r",
+									"\r",
+									"        const disc = await api.addDiscussion(rnd.getDiscussion(user.id, category.id));\r",
+									"        pm.collectionVariables.set(\"dsid\", disc.id);\r",
+									"\r",
+									"        const comment = await api.addComment(rnd.getComment(user.id), disc.id);\r",
+									"        const foundComment = await api.findComment(comment.id, disc.id);\r",
+									"        pm.collectionVariables.set(\"cmid\", comment.id)\r",
+									"        pm.collectionVariables.set(\"response\", foundComment)\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 204\", () => {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									"\r",
+									"const source = pm.collectionVariables.get('response');\r",
+									"const comId = pm.collectionVariables.get('cmid');\r",
+									"const discId = pm.collectionVariables.get('dsid');\r",
+									"\r",
+									"pm.test(\"Комментарий должен быть найден до выполнения запроса\", () => {\r",
+									"    pm.expect(source.id).to.eql(comId);\r",
+									"});\r",
+									"\r",
+									"let body\r",
+									"const req = {\r",
+									"                url: \"http://localhost:8080/api/v1/discussions/\" + discId+\"/comments/\"+comId,\r",
+									"                method: \"GET\",\r",
+									"                body: body == null ? \"\" : JSON.stringify(body),\r",
+									"                header: { \"Content-Type\": \"application/json\" },\r",
+									"            };\r",
+									"pm.sendRequest(req, (error, response) => {\r",
+									"    pm.test(\"Комментарий должен быть удалён после выполнения запроса\", () => {\r",
+									"        pm.expect(response.code).to.eql(404);\r",
+									"    });\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/discussions/:discussionId/comments/:commentId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"discussions",
+								":discussionId",
+								"comments",
+								":commentId"
+							],
+							"variable": [
+								{
+									"key": "discussionId",
+									"value": "{{dsid}}"
+								},
+								{
+									"key": "commentId",
+									"value": "{{cmid}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"API = class {",
+					"    constructor(postman, verbose = false, baseUrl = \"http://localhost:8080/api/v1\") {",
+					"        this.baseUrl = baseUrl;",
+					"        this.pm = postman;",
+					"        this._verbose = verbose;",
+					"    }",
+					"",
+					"    async addUser(user, verbose=null) {",
+					"        return this.post(\"/users\", user, \"Ошибка при добавлении нового пользователя: \", verbose);",
+					"    }",
+					"",
+					"    async findUser(userId, verbose=null) {",
+					"        return this.get('/users/' + userId, null, \"Ошибка при поиске пользователя по id\", verbose);",
+					"    }",
+					"    ",
+					"    async addDiscussion(disc, verbose=null) {",
+					"        return this.post(\"/discussions\", disc, \"Ошибка при добавлении нового обсуждения: \", verbose);",
+					"    }",
+					"",
+					"    async findDiscussion(discId, verbose=null) {",
+					"        return this.get('/discussions/' + discId, null, \"Ошибка при поиске обсуждения по id\", verbose);",
+					"    }",
+					"",
+					"    async addComment(comment, discId, verbose=null) {",
+					"        return this.post(\"/discussions/\"+ discId+\"/comments\",comment, \"Ошибка при добавлении нового комментария: \", verbose);",
+					"    }",
+					"",
+					"    async findComment(commentId, discId, verbose=null) {",
+					"        return this.get('/discussions/' + discId+\"/comments/\"+commentId, null, \"Ошибка при поиске комментария обсуждения по id\", verbose);",
+					"    }",
+					"",
+					"    async addFilm(film, verbose=null) {",
+					"        return this.post(\"/films\", film, \"Ошибка при добавлении нового фильма: \", verbose);",
+					"    }",
+					"",
+					"    async findFilm(filmId, verbose=null) {",
+					"        return this.get('/films/' + filmId, null, \"Ошибка при поиске фильма по id\", verbose);",
+					"    }",
+					"",
+					"    async addDirector(director, verbose=null) {",
+					"        return this.post(\"/directors\", director, \"Ошибка при добавлении нового режиссера: \", verbose);",
+					"    }",
+					"",
+					"    async findDirector(directorId, verbose=null) {",
+					"        return this.get('/directors/' + directorId, null, \"Ошибка при поиске режиссера по id\", verbose);",
+					"    }",
+					"",
+					"    async addCategory(category, verbose=null) {",
+					"        return this.post(\"/categories\", category, \"Ошибка при добавлении новой категории: \", verbose);",
+					"    }",
+					"",
+					"    async findCategory(categoryId, verbose=null) {",
+					"        return this.get('/categories/' + categoryId, null, \"Ошибка при поиске категории по id\", verbose);",
+					"    }",
+					"",
+					"    async post(path, body, errorText = \"Ошибка при выполнении post-запроса: \", verbose=null) {",
+					"        return this.sendRequest(\"POST\", path, body, errorText, verbose);",
+					"    }",
+					"",
+					"    async patch(path, body = null, errorText = \"Ошибка при выполнении patch-запроса: \", verbose=null) {",
+					"        return this.sendRequest(\"PATCH\", path, body, errorText, verbose);",
+					"    }",
+					"",
+					"    async get(path, body = null, errorText = \"Ошибка при выполнении get-запроса: \", verbose=null) {",
+					"        return this.sendRequest(\"GET\", path, body, errorText, verbose);",
+					"    }",
+					"",
+					"    async sendRequest(method, path, body=null, errorText = \"Ошибка при выполнении запроса: \", verbose=null) {",
+					"        return new Promise((resolve, reject) => {",
+					"            verbose = verbose == null ? this._verbose : verbose;",
+					"",
+					"            const request = {",
+					"                url: this.baseUrl + path,",
+					"                method: method,",
+					"                body: body == null ? \"\" : JSON.stringify(body),",
+					"                header: { \"Content-Type\": \"application/json\" },",
+					"            };",
+					"",
+					"            if(verbose) {",
+					"                console.log(\"Отправляю запрос: \", request);",
+					"            }",
+					"",
+					"            try {",
+					"                this.pm.sendRequest(request, (error, response) => {",
+					"                    if(error || (response.code >= 400 && response.code <= 599)) {",
+					"                        let err = error ? error : JSON.stringify(response.json());",
+					"                        console.error(\"При выполнении запроса к серверу возникла ошика.\\n\", err,",
+					"                             \"\\nДля отладки проблемы повторите такой же запрос к вашей программе \" + ",
+					"                             \"на локальном компьютере. Данные запроса:\\n\", JSON.stringify(request));",
+					"",
+					"                        reject(new Error(errorText + err));",
+					"                    }",
+					"",
+					"                    if(verbose) {",
+					"                        console.log(\"Результат обработки запроса: код состояния - \", response.code, \", тело: \", response.json());",
+					"                    }",
+					"",
+					"                    resolve(response.json());",
+					"                });",
+					"            } catch(err) {",
+					"                if(verbose) {",
+					"                    console.error(errorText, err);",
+					"                }",
+					"                return Promise.reject(err);",
+					"            }",
+					"        });",
+					"    }",
+					"};",
+					"",
+					"RandomUtils = class {",
+					"    constructor() {}",
+					"",
+					"    getUser() {",
+					"        return {",
+					"            name: pm.variables.replaceIn('{{$randomFullName}}'),",
+					"            email: pm.variables.replaceIn('{{$randomEmail}}'),",
+					"            country: pm.variables.replaceIn('{{$randomCountry}}')",
+					"        };",
+					"    }",
+					"    getDirector() {",
+					"        return {",
+					"            name: pm.variables.replaceIn('{{$randomFullName}}')",
+					"        };",
+					"    }",
+					"    getCategory() {",
+					"        return {",
+					"            name: pm.variables.replaceIn('{{$randomDepartment}}')",
+					"        };",
+					"    }",
+					"",
+					"    getDiscussion(author, categoryId) {",
+					"        let categories = [];",
+					"",
+					"        for (var i = 0; i < _.random(1,3); i++){",
+					"            categories.push(categoryId);",
+					"        }",
+					"        return {",
+					"            title: pm.variables.replaceIn('{{$randomLoremWord}}'),",
+					"            description: pm.variables.replaceIn('{{$randomLoremSentences}}'),",
+					"            author: pm.variables.replaceIn(author),",
+					"            categories: categories",
+					"        };",
+					"    }",
+					"    getComment(author) {",
+					"        return {",
+					"            message: pm.variables.replaceIn('{{$randomLoremSentences}}'),",
+					"            author: pm.variables.replaceIn(author)",
+					"        };",
+					"    }",
+					"",
+					"    getFilm(directorId, categoryId) {",
+					"        let d = new Date();",
+					"        d.setHours(_.random(1,2));",
+					"        d.setMinutes(_.random(0,59));",
+					"        d.setSeconds(_.random(0,59));",
+					"",
+					"        let hours = (d.getHours() < 10 ? \"0\" : \"\") + d.getHours();",
+					"        let minutes = (d.getMinutes() < 10 ? \"0\" : \"\") + d.getMinutes();",
+					"        let seconds = (d.getSeconds() < 10 ? \"0\" : \"\") + d.getSeconds();",
+					"",
+					"        return {",
+					"            title: pm.variables.replaceIn('{{$randomLoremWord}}'),",
+					"            description: pm.variables.replaceIn('{{$randomLoremSentences}}'),",
+					"            releaseYear: pm.variables.replaceIn(_.random(1895,2023), 'second'),",
+					"            directorId: pm.variables.replaceIn(directorId),",
+					"            categoryId: pm.variables.replaceIn(categoryId),",
+					"            duration: pm.variables.replaceIn(d.format(hours+\":\"+minutes+\":\"+seconds)),",
+					"            rating: pm.variables.replaceIn(_.sample(['G', 'PG', 'PG_13','R','NC_17'])),",
+					"            country: pm.variables.replaceIn('{{$randomCountry}}')",
+					"        };",
+					"    }",
+					"",
+					"",
+					"",
+					"    getFutureDateTime(hourShift = 5, minuteShift=0, yearShift=0) {",
+					"        let moment = require('moment');",
+					"",
+					"        let m = moment();",
+					"        m.add(hourShift, 'hour');",
+					"        m.add(minuteShift, 'minute');",
+					"        m.add(yearShift, 'year');",
+					"",
+					"        return m.format('YYYY-MM-DD HH:mm:ss');",
+					"    }",
+					"",
+					"    getWord(length = 1) {",
+					"        let result = '';",
+					"        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';",
+					"        const charactersLength = characters.length;",
+					"        let counter = 0;",
+					"        while (counter < length) {",
+					"            result += characters.charAt(Math.floor(Math.random() * charactersLength));",
+					"            counter += 1;",
+					"        }",
+					"        return result;",
+					"    }",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080/api/v1"
+		},
+		{
+			"key": "request_body",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "response",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "cid",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "did",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "fid",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "country",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "dsid",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "uid",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "status",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "cmid",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
