@@ -1,7 +1,7 @@
 package com.MyProject.service;
 
-import com.MyProject.feign.CategoryService;
-import com.MyProject.feign.UserService;
+import com.MyProject.feign.FilmFeignClient;
+import com.MyProject.feign.UserFeignClient;
 import com.MyProject.mapper.CategoryMapper;
 import com.MyProject.mapper.UserMapper;
 import com.MyProject.model.Category;
@@ -31,20 +31,20 @@ import static org.springframework.data.jpa.domain.Specification.where;
 @Slf4j
 public class DiscussionService {
     private final DiscussionRepository repository;
-    private final UserService userService;
+    private final UserFeignClient userFeignClient;
+    private final FilmFeignClient filmFeignClient;
     private final UserMapper userMapper;
-    private final CategoryService categoryService;
     private final CategoryMapper categoryMapper;
     private final DiscussionMapper mapper;
     public DiscussionDto openDiscussion(NewDiscussion newDiscussion) {
         List<Category> categories = newDiscussion.getCategories()
                 .stream()
-                .map(categoryService::getCategory)
+                .map(filmFeignClient::getCategory)
                 .map(categoryMapper::toEntityFromCategoryDto)
                 .toList();
 
         Discussion discussion = mapper.toEntity(newDiscussion,
-                userMapper.toEntityFromUserDto(userService.getUser(newDiscussion.getAuthor())),
+                userMapper.toEntityFromUserDto(userFeignClient.getUser(newDiscussion.getAuthor())),
                 categories);
         discussion.setStatus(DiscussionStatus.OPEN);
 
@@ -76,12 +76,12 @@ public class DiscussionService {
         List<Category> categories = null;
 
         if (authorId != null){
-            author = userMapper.toEntityFromUserDto(userService.getUser(authorId));
+            author = userMapper.toEntityFromUserDto(userFeignClient.getUser(authorId));
         }
         if(categoriesIds != null && !categoriesIds.isEmpty()){
             categories = categoriesIds
                     .stream()
-                    .map(categoryService::getCategory)
+                    .map(filmFeignClient::getCategory)
                     .map(categoryMapper::toEntityFromCategoryDto)
                     .toList();
         }
@@ -101,7 +101,7 @@ public class DiscussionService {
         if (upd.getCategories() != null && !upd.getCategories().isEmpty()){
             categories = upd.getCategories()
                     .stream()
-                    .map(categoryService::getCategory)
+                    .map(filmFeignClient::getCategory)
                     .map(categoryMapper::toEntityFromCategoryDto)
                     .toList();
         }

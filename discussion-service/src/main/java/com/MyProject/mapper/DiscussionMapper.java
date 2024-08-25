@@ -24,6 +24,7 @@ public interface DiscussionMapper {
     @Mapping(target = "author", source = "author")
     @Mapping(target = "categories", source = "categories")
     Discussion toEntity(NewDiscussion newDiscussion, User author, List<Category> categories);
+    Discussion toEntity(DiscussionDto dto);
     @Mapping(ignore = true, target = "id")
     @Mapping(ignore = true, target = "closedAt")
     @Mapping(ignore = true, target = "openedAt")

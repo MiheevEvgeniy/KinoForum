@@ -1,13 +1,11 @@
 server:
-  port: 8084
-  servlet:
-    context-path: /api/v1
+  port: 8010
 spring:
   application:
     name: discussion-service
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQL10Dialect
@@ -17,7 +15,7 @@ spring:
     init:
       mode: always
   datasource:
-    url: jdbc:h2:file:./db/kinoforum-db;MODE=PostgreSQL
+    url: jdbc:h2:file:./db/discussion-db;MODE=PostgreSQL
     driverClassName: org.h2.Driver
     username: admin
     password: admin

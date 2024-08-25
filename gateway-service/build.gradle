@@ -1,19 +1,16 @@
-plugins {
-    id 'java'
+ext {
+    mapstructVersion = "1.5.5.Final"
 }
-
-group 'com.MyProject'
-version '0.0.1-SNAPSHOT'
-
-repositories {
-    mavenCentral()
-}
-
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
-}
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-eureka-client', version: '4.0.3'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: '3.1.5'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-configuration-processor', version: '3.1.5'
 
-test {
-    useJUnitPlatform()
+}
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:2022.0.4"
+    }
 }

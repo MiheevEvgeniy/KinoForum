@@ -1,0 +1,44 @@
+server:
+  port: 8080
+spring:
+  main:
+    web-application-type: reactive
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: http://localhost:8030
+          predicates:
+            - Path=/users/**
+        - id: discussion-service
+          uri: http://localhost:8010
+          predicates:
+            - Path=/discussions/**
+        - id: films-service
+          uri: http://localhost:8020
+          predicates:
+            - Path=/films/**
+        - id: categories-service
+          uri: http://localhost:8020
+          predicates:
+            - Path=/categories/**
+        - id: directors-service
+          uri: http://localhost:8020
+          predicates:
+            - Path=/directors/**
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+eureka:
+  instance:
+    hostname: localhost
+    non-secure-port: 8761
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://${eureka.instance.hostname}:${eureka.instance.non-secure-port}/eureka/
